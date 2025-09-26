@@ -1,0 +1,125 @@
+import 'package:flutter/material.dart';
+import '../navigation/app_drawer.dart';
+
+class Practice2 extends StatefulWidget {
+  const Practice2({super.key});
+
+  @override
+  State<Practice2> createState() => _Practice2State();
+}
+
+class _Practice2State extends State<Practice2> {
+  // Lista dinámica donde se guardan los elementos
+  final List<String> _items = [];
+  // Controlador para leer el texto ingresado en el TextField
+  final TextEditingController _controller = TextEditingController();
+
+  // Agregar un nuevo elemento
+  void _addItem() {
+    if (_controller.text.trim().isNotEmpty) {
+      setState(() {
+        _items.add(_controller.text.trim());
+        _controller.clear(); // Limpia el campo después de agregar
+      });
+    }
+  }
+
+  // Eliminar un elemento por su índice
+  void _removeItem(int index) {
+    setState(() {
+      _items.removeAt(index);
+    });
+  }
+
+  // Limpiar toda la lista
+  void _clearAll() {
+    setState(() {
+      _items.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // Barra superior con título y acción para limpiar lista
+      appBar: AppBar(
+        title: const Text('Práctica 2: Lista Dinámica'),
+        automaticallyImplyLeading: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.clear_all),
+            onPressed: _clearAll,
+            tooltip: 'Limpiar todo',
+          ),
+        ],
+      ),
+      drawer: const AppDrawer(),
+
+      // Cuerpo principal
+      body: Column(
+        children: [
+          // Sección de entrada de texto y botón para agregar
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                // Campo de texto para escribir el nuevo elemento
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      labelText: 'Nuevo elemento',
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (_) => _addItem(), // Enter también agrega
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Botón flotante pequeño (+)
+                FloatingActionButton(
+                  onPressed: _addItem,
+                  mini: true,
+                  child: const Icon(Icons.add),
+                ),
+              ],
+            ),
+          ),
+
+          // Lista dinámica
+          Expanded(
+            child: _items.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No hay elementos\nAgrega uno nuevo',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _items.length,
+                    itemBuilder: (context, index) => Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: ListTile(
+                        title: Text(_items[index]),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _removeItem(index),
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Liberar el controlador cuando ya no se use
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
