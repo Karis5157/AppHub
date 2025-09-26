@@ -3,6 +3,7 @@
 Una app que reúne prácticas de desarrollo Flutter y herramientas offline.
 
 📱 Descripción
+
 AppHub Portfolio es una aplicación móvil en Flutter, diseñada para navegar fácilmente entre prácticas de desarrollo y un kit de herramientas que funcionan sin conexión.
 
 
@@ -13,6 +14,7 @@ Navegación Centralizada: Uso de un menú Drawer.
 
 
 Portfolio de Prácticas: Incluye 4 prácticas.
+
 <img width="506" height="586" alt="image" src="https://github.com/user-attachments/assets/97f43f3a-4ab8-4584-9734-3d7f7ca1869b" />
 
 
