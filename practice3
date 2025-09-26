@@ -1,0 +1,288 @@
+import 'package:flutter/material.dart';
+import '../main.dart';
+import '../navigation/app_drawer.dart'; // Menú lateral
+
+class Practice3 extends StatefulWidget {
+  const Practice3({super.key});
+
+  @override
+  State<Practice3> createState() => _Practice3State();
+}
+
+class _Practice3State extends State<Practice3> {
+  // Llave global para validar el formulario
+  final _formKey = GlobalKey<FormState>();
+
+  // Controladores de texto para cada campo
+  final _nombreController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  // Estados para mostrar/ocultar contraseñas y checkbox
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
+  bool _acceptTerms = false;
+
+  // FocusNodes para manejar el "tab" entre campos
+  late FocusNode _nombreFocus;
+  late FocusNode _emailFocus;
+  late FocusNode _passwordFocus;
+  late FocusNode _confirmPasswordFocus;
+
+  @override
+  void initState() {
+    super.initState();
+    _nombreFocus = FocusNode();
+    _emailFocus = FocusNode();
+    _passwordFocus = FocusNode();
+    _confirmPasswordFocus = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // Liberar memoria de controladores y FocusNodes
+    _nombreController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _nombreFocus.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmPasswordFocus.dispose();
+    super.dispose();
+  }
+
+  // ======= VALIDADORES =======
+  String? _validateNombre(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'El nombre es obligatorio';
+    }
+    if (value.length < 3) {
+      return 'Mínimo 3 caracteres';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'El email es obligatorio';
+    }
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Formato de email inválido';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'La contraseña es obligatoria';
+    }
+    if (value.length < 6) {
+      return 'Mínimo 6 caracteres';
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value != _passwordController.text) {
+      return 'Las contraseñas no coinciden';
+    }
+    return null;
+  }
+
+  // ======= MÉTODOS PRINCIPALES =======
+  void _submitForm() {
+    if (_formKey.currentState!.validate() && _acceptTerms) {
+      // Mostrar mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Registrado: ${_nombreController.text} (${_emailController.text})',
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } else if (!_acceptTerms) {
+      // Aviso si no acepta términos
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Debe aceptar los términos y condiciones'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _resetForm() {
+    _formKey.currentState!.reset(); // Resetea validaciones
+    setState(() {
+      _passwordVisible = false;
+      _confirmPasswordVisible = false;
+      _acceptTerms = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // AppBar con título y menú hamburguesa
+      appBar: AppBar(
+        title: const Text('Registro'),
+        automaticallyImplyLeading: true,
+      ),
+      drawer: const AppDrawer(),
+
+      // Contenido del formulario
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Campo Nombre
+                TextFormField(
+                  controller: _nombreController,
+                  focusNode: _nombreFocus,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.name,
+                  textInputAction: TextInputAction.next,
+                  validator: _validateNombre,
+                  onFieldSubmitted: (_) {
+                    _nombreFocus.unfocus();
+                    FocusScope.of(context).requestFocus(_emailFocus);
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // Campo Email
+                TextFormField(
+                  controller: _emailController,
+                  focusNode: _emailFocus,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  validator: _validateEmail,
+                  onFieldSubmitted: (_) {
+                    _emailFocus.unfocus();
+                    FocusScope.of(context).requestFocus(_passwordFocus);
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // Campo Contraseña
+                TextFormField(
+                  controller: _passwordController,
+                  focusNode: _passwordFocus,
+                  decoration: InputDecoration(
+                    labelText: 'Contraseña',
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _passwordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _passwordVisible = !_passwordVisible;
+                        });
+                      },
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                  obscureText: !_passwordVisible,
+                  textInputAction: TextInputAction.next,
+                  validator: _validatePassword,
+                  onFieldSubmitted: (_) {
+                    _passwordFocus.unfocus();
+                    FocusScope.of(context).requestFocus(_confirmPasswordFocus);
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // Campo Confirmar Contraseña
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  focusNode: _confirmPasswordFocus,
+                  decoration: InputDecoration(
+                    labelText: 'Confirmar Contraseña',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _confirmPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _confirmPasswordVisible = !_confirmPasswordVisible;
+                        });
+                      },
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                  obscureText: !_confirmPasswordVisible,
+                  textInputAction: TextInputAction.done,
+                  validator: _validateConfirmPassword,
+                  onFieldSubmitted: (_) {
+                    _confirmPasswordFocus.unfocus();
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // Checkbox de términos
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _acceptTerms,
+                      onChanged: (value) {
+                        setState(() {
+                          _acceptTerms = value!;
+                        });
+                      },
+                    ),
+                    const Expanded(
+                      child: Text('Acepto los términos y condiciones'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Botón Enviar
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitForm,
+                    child: const Text('Enviar'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Botón Limpiar
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _resetForm,
+                    child: const Text('Limpiar'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
