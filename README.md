@@ -19,6 +19,7 @@ Portfolio de Prácticas: Incluye 4 prácticas.
 
 
 Kit Offline: 4 módulos funcionales sin conexión.
+
 <img width="502" height="547" alt="image" src="https://github.com/user-attachments/assets/e4256845-3f2a-4714-b1bd-4c4431cf215b" />
 
 🏗️ Estructura del Proyecto
